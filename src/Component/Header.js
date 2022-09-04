@@ -1,9 +1,14 @@
 import React, { useContext } from "react";
 import { NavLink } from "react-router-dom";
 import { ThemeContext } from "../context/ThemeContext";
+import Alert from "./Alert/Alert";
+import { useSelector, useDispatch } from 'react-redux'
+import { signOutAction } from "../redux/action/auth.action.js";
 
 const Header = () => {
   const value = useContext(ThemeContext);
+  const dispatch = useDispatch();
+  const auth = useSelector(state => state.auth)
   return (
     <>
       <div className="main-header">
@@ -13,7 +18,7 @@ const Header = () => {
         >
           <div className="container d-flex justify-content-between">
             <div className="contact-info d-flex align-items-center">
-              <i className="bi bi-envelope" />{" "}
+              <i className="bi bi-envelope" />
               <a href="mailto:contact@example.com">contact@example.com</a>
               <i className="bi bi-phone" /> +1 5589 55488 55
             </div>
@@ -117,17 +122,30 @@ const Header = () => {
             >
               <span className="d-none d-md-inline">Make an</span> Appointment
             </NavLink>
-            <NavLink
-              to="/login"
-              exact
-              activeClassName="active"
-              className="d-none d-md-inline appointment-btn scrollto"
-            >
-              <span>Login/ Signup</span>
-            </NavLink>
+            {auth.user ? (
+              <NavLink
+                to="/login"
+                exact
+                activeClassName="active"
+                className="d-none d-md-inline appointment-btn scrollto"
+                onClick={() => {dispatch(signOutAction())}}
+              >
+                <span>Logout</span>
+              </NavLink>
+            ) : (
+              <NavLink
+                to="/login"
+                exact
+                activeClassName="active"
+                className="d-none d-md-inline appointment-btn scrollto"
+              >
+                <span>Login/ Signup</span>
+              </NavLink>
+            )}
             <button onClick={() => value.toggleTheme(value.theme)}>
               Change Mode
             </button>
+            <Alert />
           </div>
         </header>
       </div>

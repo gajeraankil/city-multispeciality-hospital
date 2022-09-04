@@ -2,13 +2,18 @@ import React, { useState } from "react";
 import { Container, Row, Col, FormGroup, Button } from "reactstrap";
 import * as yup from "yup";
 import { Formik, Form, useFormik, Field } from "formik";
-import { useHistory } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import {
+  signupAction,
+  signInAction,
+  forgotPasswordAction,
+  googleLoginAction,
+} from "../redux/action/auth.action.js.js";
 
 const Login = () => {
   const [userType, setUserType] = useState("Login");
   const [reset, setReset] = useState(false);
-  const history = useHistory()
-
+  const dispatch = useDispatch();
   let schemaObj, initVal;
   if (reset) {
     schemaObj = {
@@ -52,30 +57,34 @@ const Login = () => {
 
   let schema = yup.object().shape(schemaObj);
 
-  const handleLogin = () => {
-    localStorage.setItem("user", 123);
+  const handleLogin = (val) => {
+    dispatch(signInAction(val));
   };
 
   const insertData = (val) => {
-    let localData = JSON.parse(localStorage.getItem("user"));
+    dispatch(signupAction(val));
+  };
 
-    if (localData) {
-      localData.push(val);
-      localStorage.setItem("user", JSON.stringify(localData));
-    } else {
-      localStorage.setItem("user", JSON.stringify([val]));
-    }
+  const handleForgotPassword = (val) => {
+    dispatch(forgotPasswordAction(val));
+  };
+
+  const handleGoogleLogin = () => {
+    dispatch(googleLoginAction());
   };
 
   const formik = useFormik({
     initialValues: initVal,
     validationSchema: schema,
     onSubmit: (values) => {
-      if (userType === "Login") {
-        handleLogin();
-        history.push("/");
+      if (!reset) {
+        if (userType === "Login") {
+          handleLogin(values);
+        } else {
+          insertData(values);
+        }
       } else {
-        insertData(values);
+        handleForgotPassword(values);
       }
     },
     enableReinitialize: true,
@@ -189,6 +198,27 @@ const Login = () => {
                 <Button type="reset" className="shadow-none">
                   Reset
                 </Button>
+              </div>
+              <div className="row text-center">
+                <h6 className="mb-3">Or</h6>
+                <div className="col-md-12">
+                  <button
+                    className="mb-3"
+                    type="submit"
+                    onClick={() => handleGoogleLogin()}
+                    style={{
+                      backgroundColor: "white",
+                      color: "black",
+                      border: "1px solid",
+                    }}
+                  >
+                    <img
+                      className="me-2"
+                      src="https://img.icons8.com/color/16/000000/google-logo.png"
+                    />
+                    Signin Using Google
+                  </button>
+                </div>
               </div>
               <div className="text-center mb-3">
                 {userType === "Login" ? (
